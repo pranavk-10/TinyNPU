@@ -1,0 +1,47 @@
+# Python cache / compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Conda environments
+.conda/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python build / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Trained model artifacts
+# Generated weights are reproducible and should not be committed
+*.npy
+
+# Generated Verilog memory files
+*.mem
+
+# Coverage / simulator outputs
+coverage/
+sim/
