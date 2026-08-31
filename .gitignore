@@ -1,4 +1,4 @@
-# Python cache / compiled files
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -9,7 +9,7 @@ venv/
 env/
 ENV/
 
-# Conda environments
+# Conda
 .conda/
 
 # Jupyter
@@ -18,11 +18,11 @@ ENV/
 # VS Code
 .vscode/
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Python build / packaging
+# Build / packaging
 build/
 dist/
 *.egg-info/
@@ -30,18 +30,17 @@ dist/
 # Logs
 *.log
 
-# Environment / secrets
+# Environment variables
 .env
 .env.*
 !.env.example
 
-# Trained model artifacts
-# Generated weights are reproducible and should not be committed
+# Generated model artifacts
 *.npy
 
-# Generated Verilog memory files
+# Generated hardware memory files
 *.mem
 
-# Coverage / simulator outputs
+# Simulation / coverage
 coverage/
 sim/

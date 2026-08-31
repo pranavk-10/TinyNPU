@@ -108,22 +108,24 @@ Total trainable parameters: **421**.
 - [x] Update weights and biases using gradient descent
 - [x] Train and test the Python model
 - [x] Save trained weights and biases as NumPy `.npy` files
+- [x] Implement per-layer INT8 weight quantization
+- [x] Implement INT8 input quantization
+- [x] Calibrate hidden-layer activation ranges
+- [x] Implement INT32 bias quantization
 
 ### In Progress / Planned
 
-- [ ] Use a larger, meaningful dataset
-- [ ] Properly quantize the trained model to INT8
-- [ ] Export weights, biases, inputs, and expected outputs as `.mem` files
+- [ ] Verify fully quantized inference against FP32
+- [ ] Export weights, biases, inputs, and test vectors as `.mem` files
 - [ ] Build MAC unit in SystemVerilog
 - [ ] Build neuron/layer RTL
 - [ ] Build complete 21 → 14 → 7 → 1 inference engine
-- [ ] Create an RTL testbench
+- [ ] Create RTL testbench
 - [ ] Automatically compare Python and RTL outputs
 - [ ] Add pipelining and parallelism
 - [ ] Synthesize for an FPGA
 - [ ] Measure LUTs, FFs, DSPs, BRAM, timing, latency, throughput, and power
 - [ ] Explore area/performance trade-offs
-
 ---
 
 ## Repository Structure
