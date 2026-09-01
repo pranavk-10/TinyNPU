@@ -1,46 +1,318 @@
+################################################################################
+# TinyNPU - Comprehensive .gitignore
+# Organized by category for clarity
+################################################################################
+
+################################################################################
+# PYTHON
+################################################################################
+
 # Python cache
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 
-# Virtual environments
-.venv/
-venv/
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
 env/
+venv/
 ENV/
-
-# Conda
+env.bak/
+venv.bak/
 .conda/
+conda-env/
 
-# Jupyter
-.ipynb_checkpoints/
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+################################################################################
+# VERILOG / HARDWARE SIMULATION
+################################################################################
+
+# Simulation executables and outputs
+*.vvp
+*.vcd
+*.gtkw
+*.wdb
+
+# Icarus Verilog outputs
+hardware/sim/
+*.o
+*.a
+
+# ModelSim/VCS outputs
+work/
+transcript
+vsim.wdb
+
+# Vivado / Xilinx
+*.jou
+*.log
+*.pb
+vivado_pid*.txt
+
+# Generic EDA tool outputs
+*.synplify
+*.rprt
+*.rpt
+*.xrpt
+
+################################################################################
+# GENERATED MODEL ARTIFACTS
+################################################################################
+
+# NumPy model files (large, regenerated from training)
+*.npy
+!.gitkeep
+
+# Generated memory files for RTL (regenerated from quantization)
+data/mem/*.mem
+data/inputs/*.mem
+
+# Simulation artifacts
+hardware/sim/*
+!hardware/sim/.gitkeep
+
+################################################################################
+# IDE & EDITOR
+################################################################################
 
 # VS Code
 .vscode/
+*.code-workspace
 
-# OS
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+
+# Vim
+*.swp
+*.swo
+*~
+.vim/
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Notepad++
+*.bak
+
+# IntelliJ IDEA
+out/
+
+################################################################################
+# OPERATING SYSTEM
+################################################################################
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
-# Build / packaging
-build/
-dist/
-*.egg-info/
+# Linux
+.directory
 
-# Logs
-*.log
+################################################################################
+# BUILD & COMPILATION
+################################################################################
 
-# Environment variables
-.env
-.env.*
-!.env.example
+# C/C++ build outputs
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
 
-# Generated model artifacts
-*.npy
+# Make
+*.make
 
-# Generated hardware memory files
-*.mem
+# CMake
+CMakeFiles/
+cmake_install.cmake
+CMakeCache.txt
 
-# Simulation / coverage
+################################################################################
+# TEMPORARY & BACKUP FILES
+################################################################################
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+
+# OS temporary
+.~*
+*.~
+
+# Editors
+*~
+.#*
+
+################################################################################
+# PROJECT-SPECIFIC EXCLUDES
+################################################################################
+
+# Local configuration (if needed)
+config.local.txt
+local_settings.py
+
+# Documentation builds
+docs/_build/
+site/
+
+# Coverage reports
 coverage/
-sim/
+htmlcov/
+
+# Performance profiling
+*.prof
+*.cProfile
+
+# Debugging
+.debug
+*.pdb
+
+################################################################################
+# WHITELIST - Files to always include despite patterns above
+################################################################################
+
+# Include specific important files
+!.gitkeep
+!.gitignore
+!.github/
+!.editorconfig
+!requirements.txt
+!README.md
+!PROJECT_STRUCTURE.md
+!QUICKSTART.md
