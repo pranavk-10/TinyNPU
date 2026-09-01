@@ -1,352 +1,184 @@
 # TinyNPU
 
-**TinyNPU** is a learning-focused neural-network inference accelerator project that explores the complete path from **machine learning in Python to hardware implementation using SystemVerilog RTL and FPGA technology**.
+**TinyNPU** is an end-to-end neural-network inference accelerator project that demonstrates the complete pipeline from **Python-based ML training to hardware implementation in SystemVerilog RTL**.
 
-The project connects a software-based neural-network training pipeline with a hardware-oriented inference implementation.
+The project showcases how a trained neural network model is progressively optimized, quantized, and implemented as a specialized hardware inference accelerator for FPGA deployment.
 
-The current neural network architecture is:
+## Network Architecture
 
-```text
-21 → 14 → 7 → 1
+```
+Input (21 features)
+    ↓ [21 × 14 weights]
+Hidden Layer 1 (14 neurons, ReLU)
+    ↓ [14 × 7 weights]
+Hidden Layer 2 (7 neurons, ReLU)
+    ↓ [7 × 1 weights]
+Output Layer (1 neuron, Sigmoid)
+    ↓
+Binary Classification
 ```
 
-The project follows the complete workflow:
+## Complete Pipeline
 
-```text
-Dataset
-   ↓
-Python Neural Network
-   ↓
-FP32 Training
-   ↓
-FP32 Inference
-   ↓
-INT8 / INT32 Quantization
-   ↓
-Quantized Inference
-   ↓
-.mem Hardware Data Export
-   ↓
-SystemVerilog RTL
-   ↓
-RTL Simulation
-   ↓
-Python vs RTL Verification
-   ↓
-FPGA Implementation
 ```
-
-The Python side is responsible for training and quantization.
-
-The SystemVerilog side is responsible for implementing neural-network inference in hardware.
-
-The ultimate goal is to demonstrate how a trained machine-learning model can be translated into a hardware inference accelerator and eventually evaluated on an FPGA.
-
----
-
-## Project Architecture
-
-```text
-                         DATASET
-                            │
-                            ▼
-                    ┌──────────────┐
-                    │    Python    │
-                    │  Data Load   │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │   Training   │
-                    │ Backpropagation
-                    └──────┬───────┘
-                           │
-                           ▼
-                    Learned Parameters
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │   FP32 Model │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ Quantization │
-                    │  INT8/INT32  │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ Quantized    │
-                    │  Inference   │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │  .mem Export │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ SystemVerilog│
-                    │     RTL      │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ RTL Simulation│
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ Python vs RTL│
-                    │ Verification │
-                    └──────┬───────┘
-                           │
-                           ▼
-                          FPGA
-```
-
----
-
-## Neural Network
-
-The current model is a fully connected feed-forward neural network.
-
-```text
-Input Layer
-21 features
-     │
-     ▼
-Hidden Layer 1
-14 neurons
-     │
-   ReLU
-     │
-     ▼
-Hidden Layer 2
-7 neurons
-     │
-   ReLU
-     │
-     ▼
-Output Layer
-1 neuron
-     │
-  Sigmoid
-     │
-     ▼
-Binary prediction
-```
-
-The architecture is:
-
-```text
-21 → 14 → 7 → 1
-```
-
-### Trainable Parameters
-
-| Layer | Shape | Weights | Biases |
-|---|---:|---:|---:|
-| 21 → 14 | `(14, 21)` | 294 | 14 |
-| 14 → 7 | `(7, 14)` | 98 | 7 |
-| 7 → 1 | `(1, 7)` | 7 | 1 |
-| **Total** | | **399** | **22** |
-
-Total trainable parameters:
-
-```text
-399 weights + 22 biases = 421 parameters
-```
-
----
-
-## Machine Learning Pipeline
-
-The Python implementation performs the complete software-side neural-network workflow.
-
-```text
 CSV Dataset
-     ↓
-Load Features + Targets
-     ↓
-Initialize Parameters
-     ↓
-Forward Propagation
-     ↓
-Calculate Binary Cross-Entropy Loss
-     ↓
-Backpropagation
-     ↓
-Calculate Gradients
-     ↓
-Gradient Descent
-     ↓
-Update Weights + Biases
-     ↓
-Repeat for Multiple Epochs
-     ↓
-Trained FP32 Model
-     ↓
-FP32 Inference
-     ↓
-Quantization
-     ↓
+    ↓
+FP32 Training (Backpropagation)
+    ↓
+Save Weights + Biases (FP32)
+    ↓
+FP32 Inference & Validation
+    ↓
+INT8 / INT32 Quantization
+    ↓
 Quantized Inference
-     ↓
-Hardware Parameter Export
-     ↓
-.mem Files
+    ↓
+Export to .mem (RTL-ready)
+    ↓
+SystemVerilog RTL Implementation
+    ↓
+RTL Simulation & Verification
+    ↓
+FPGA Deployment
 ```
-
-The trained parameters form the bridge between the machine-learning implementation and the hardware implementation.
 
 ---
 
-## FP32 Model
+## Directory Structure
 
-The initial neural network operates using floating-point values.
-
-The Python model contains:
-
-```text
-FP32 Inputs
-FP32 Weights
-FP32 Biases
-FP32 Activations
-FP32 Output
+```
+TinyNPU/
+├── main.py                          # Main pipeline orchestrator
+├── model.py                         # Neural network class (FP32)
+├── backprop.py                      # Training with backpropagation
+├── load.py                          # Dataset loading
+├── quantize_model.py                # INT8/INT32 quantization
+├── quantized_inference.py           # Inference on quantized model
+├── export_mem.py                    # Export to .mem format
+├── create_architecture_image.py     # Generates architecture diagram
+├── tinynpu_21_feature_dataset.csv   # Training dataset (21 features)
+├── requirements.txt                 # Dependencies
+├── docs/                            # Documentation
+│   └── tinynpu_architecture.png
+├── rtl/                             # SystemVerilog RTL modules
+├── mem/                             # Exported .mem files (weights/biases)
+├── quantized/                       # Quantized parameters
+├── tinynpu_sim/                     # Simulation outputs
+├── layer1_sim/                      # Layer 1 simulation
+├── layer2_sim/                      # Layer 2 simulation
+├── layer3_sim/                      # Layer 3 simulation
+├── mac_sim/                         # MAC unit simulation
+├── neuron_sim/                      # Neuron simulation
+└── relu_sim/                        # ReLU activation simulation
 ```
 
-The model performs:
+## Getting Started
 
-```text
-Layer 1
-21 → 14
-     ↓
-ReLU
-     ↓
-Layer 2
-14 → 7
-     ↓
-ReLU
-     ↓
-Layer 3
-7 → 1
-     ↓
-Sigmoid
-     ↓
-Probability
+### Prerequisites
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
 ```
 
-The final sigmoid output represents the binary-classification probability.
+Required packages:
+- numpy >= 1.26
+- pandas >= 2.0
+- matplotlib >= 3.8
 
----
+### Running the Pipeline
 
-## Quantization
+Execute the complete pipeline:
 
-After training, the floating-point model is converted into an integer representation suitable for hardware inference.
-
-The project uses:
-
-```text
-INT8
+```bash
+python main.py
 ```
 
-for inputs, weights, and intermediate activations.
+This will:
+1. Load the dataset from CSV
+2. Create and train the neural network (FP32)
+3. Save trained weights and biases
+4. Run FP32 inference
+5. Quantize to INT8/INT32
+6. Export parameters for hardware implementation
 
-Biases and accumulators use:
+## Training Details
 
-```text
-INT32
+### Algorithm
+
+- **Optimizer:** Gradient Descent
+- **Loss Function:** Binary Cross-Entropy
+- **Learning Rate:** 0.01 (configurable)
+- **Epochs:** 1000 (configurable)
+
+### Activation Functions
+
+- **Hidden Layers:** ReLU (Rectified Linear Unit)
+- **Output Layer:** Sigmoid (Binary classification)
+
+### Backpropagation
+
+The `backprop.py` module implements standard backpropagation:
+
+1. Forward pass through all layers
+2. Compute loss via Binary Cross-Entropy
+3. Backward pass to compute gradients
+4. Update weights and biases via gradient descent
+
+## Quantization Strategy
+
+### INT8 Quantization
+
+Weights, inputs, and activations are converted to INT8 (-128 to 127):
+
+```
+FP32 Value → Quantize (divide by scale) → INT8 Value
+INT8 Value → Dequantize (multiply by scale) → FP32 Value
 ```
 
-### Weight Quantization
+### INT32 for Accumulators
 
-Weights are converted from:
+Biases and MAC accumulations use INT32 for numerical precision:
 
-```text
-FP32
- ↓
-INT8
+```
+INT8 × INT8 → INT32 (MAC output)
+INT32 + INT32 (Bias) → INT32 (Pre-activation)
+INT32 → Requantize → INT8 (Activation)
 ```
 
-using scale factors.
+## Hardware Export
 
-Conceptually:
+### .mem Files
 
-```text
-INT8 ≈ FP32 / scale
-```
+The `export_mem.py` script exports quantized parameters in `.mem` format for RTL:
 
-and during reconstruction:
+- `weights_layer1.mem` – INT8 weights
+- `bias_layer1.mem` – INT32 biases
+- `weights_layer2.mem`
+- `bias_layer2.mem`
+- `weights_layer3.mem`
+- `bias_layer3.mem`
+- `scale_factors.mem` – Quantization scales
 
-```text
-FP32 ≈ INT8 × scale
-```
+### RTL Implementation
 
-The signed INT8 range is:
+SystemVerilog modules in the `rtl/` directory implement:
 
-```text
--128 → 127
-```
+- MAC (Multiply-Accumulate) units
+- Quantization/Dequantization logic
+- ReLU activation
+- Sigmoid activation
+- Layer pipelines
 
-Separate scale factors are maintained for the different layers.
+## Verification
 
-### Input Quantization
+The project includes simulation modules to verify hardware against Python:
 
-The model inputs are converted from FP32 to INT8:
-
-```text
-FP32 Input
-     ↓
-Quantization
-     ↓
-INT8 Input
-```
-
-An input scale is exported along with the quantized input data.
-
-### Activation Quantization
-
-The hidden-layer activations are calibrated and converted to INT8.
-
-The hardware-oriented computation therefore becomes:
-
-```text
-INT8 Input
-    ×
-INT8 Weight
-    ↓
-INT32 Accumulator
-    +
-INT32 Bias
-    ↓
-Requantization
-    ↓
-INT8 Activation
-    ↓
-ReLU
-    ↓
-Next Layer
-```
-
-### Bias Quantization
-
-Biases are represented using INT32 values.
-
-This provides sufficient numerical range for the accumulated products generated by the MAC operations.
-
-The resulting hardware representation contains:
-
-```text
-INT8 Inputs
-INT8 Weights
-INT32 Biases
-INT8 Activations
-```
-
----
+- `tinynpu_sim/` – Full-system simulation
+- `mac_sim/` – MAC unit simulation
+- `relu_sim/` – ReLU activation simulation
+- `neuron_sim/` – Single neuron simulation
 
 ## Quantized Inference
 
@@ -466,596 +298,195 @@ The RTL hierarchy is:
 
 ---
 
-## RTL Bus Architecture
+## Core Python Modules
 
-The implementation uses packed buses to connect the neural-network layers.
+| Module | Purpose |
+|--------|---------|
+| `model.py` | FP32 neural network class |
+| `backprop.py` | Backpropagation training algorithm |
+| `load.py` | CSV dataset loading |
+| `quantize_model.py` | INT8/INT32 quantization pipeline |
+| `quantized_inference.py` | Inference on quantized model |
+| `export_mem.py` | Export to .mem format for RTL |
+| `create_architecture_image.py` | Generate architecture diagrams |
 
-### Layer 1 Input
+## Parameter Summary
 
-```text
-21 × INT8
+### Total Trainable Parameters: **421**
+
+| Layer | Shape | Weights | Biases |
+|-------|------:|--------:|-------:|
+| Layer 1 (21→14) | (14, 21) | 294 | 14 |
+| Layer 2 (14→7) | (7, 14) | 98 | 7 |
+| Layer 3 (7→1) | (1, 7) | 7 | 1 |
+| **Total** | - | **399** | **22** |
+
+## RTL Hardware Implementation
+
+### Bus Widths
+
+| Layer | Output Nodes | Total Bus Width |
+|-------|-------------:|----------------:|
+| Layer 1 Output | 14 × INT8 | 112 bits |
+| Layer 2 Output | 7 × INT8 | 56 bits |
+| Layer 3 Output | 1 × INT8 | 8 bits |
+
+### RTL Modules
+
 ```
-
-Total bus width:
-
-```text
-21 × 8 = 168 bits
-```
-
-### Layer 1 Output
-
-```text
-14 × INT8
-```
-
-Total bus width:
-
-```text
-14 × 8 = 112 bits
-```
-
-### Layer 2 Output
-
-```text
-7 × INT8
-```
-
-Total bus width:
-
-```text
-7 × 8 = 56 bits
-```
-
-### Layer 3 Output
-
-```text
-1 × INT8
-```
-
-Total bus width:
-
-```text
-1 × 8 = 8 bits
-```
-
----
-
-## RTL Modules
-
-The current RTL structure is:
-
-```text
 rtl/
+├── Computation Units
+│   ├── mac.sv               # Multiply-Accumulate
+│   ├── relu.sv              # ReLU activation
+│   ├── requantize.sv        # INT32 → INT8 conversion
+│   └── neuron.sv            # Complete neuron pipeline
 │
-├── mac.sv
-├── relu.sv
-├── requantize.sv
-├── neuron.sv
+├── Layer Implementations
+│   ├── layer1.sv            # 14 neurons (21→14)
+│   ├── layer2.sv            # 7 neurons (14→7)
+│   ├── layer3.sv            # 1 neuron (7→1)
+│   └── tinynpu.sv           # Complete network integration
 │
-├── layer1.sv
-├── layer2.sv
-├── layer3.sv
-│
-├── tinynpu.sv
-│
-├── tb_mac.sv
-├── tb_relu.sv
-├── tb_requantize.sv
-├── tb_neuron.sv
-├── tb_layer1.sv
-├── tb_layer2.sv
-├── tb_layer3.sv
-└── tb_tinynpu.sv
+└── Testbenches
+    ├── tb_mac.sv
+    ├── tb_relu.sv
+    ├── tb_requantize.sv
+    ├── tb_neuron.sv
+    ├── tb_layer1.sv
+    ├── tb_layer2.sv
+    ├── tb_layer3.sv
+    └── tb_tinynpu.sv
 ```
 
----
+### Verified Components
 
-## RTL Components
+- ✓ MAC Unit – INT8 × INT8 → INT32 accumulation
+- ✓ ReLU – max(0, x) activation
+- ✓ Requantization – INT32 → INT8 with saturation
+- ✓ Single Neuron – Complete datapath
+- ✓ Layer 1 – All 14 neurons verified
+- ✓ Layer 2 – All 7 neurons verified
+- ✓ Layer 3 – Output neuron verified
+- ✓ Complete Network – Full integration test passed
 
-### MAC Unit
+## Hardware Memory Files
 
-The MAC unit performs:
+The `mem/` directory contains exported quantized parameters:
 
-```text
-Input × Weight
-      +
-    Bias
-      ↓
-INT32 Accumulator
 ```
-
-Example verification:
-
-```text
-Input 0 = 10
-Weight 0 = 5
-
-Input 1 = 3
-Weight 1 = 2
-
-Input 2 = -4
-Weight 2 = 7
-
-Bias = 10
-
-Expected result = 38
-RTL result      = 38
-```
-
-Result:
-
-```text
-TEST PASSED
-```
-
----
-
-### ReLU Unit
-
-The ReLU hardware implements:
-
-```text
-ReLU(x) = max(0, x)
-```
-
-Test cases included:
-
-```text
--10 → 0
--1  → 0
- 0  → 0
- 5  → 5
-127 → 127
-```
-
-Result:
-
-```text
-ReLU Test Complete
-```
-
-Status:
-
-```text
-PASSED
-```
-
----
-
-### Requantization Unit
-
-The requantization unit converts the INT32 accumulator back to an INT8 representation.
-
-It was tested using:
-
-```text
-0
-positive accumulator
-negative accumulator
-large positive accumulator
-large negative accumulator
-```
-
-The implementation also verifies INT8 saturation:
-
-```text
-Maximum = 127
-Minimum = -128
-```
-
-Result:
-
-```text
-Requantization Test Complete
-```
-
-Status:
-
-```text
-PASSED
-```
-
----
-
-### Single Neuron
-
-The single-neuron RTL integrates:
-
-```text
-MAC
- ↓
-Requantization
- ↓
-ReLU
-```
-
-The complete neuron datapath was verified independently.
-
-Result:
-
-```text
-NEURON TEST PASSED
-```
-
-Status:
-
-```text
-PASSED
-```
-
----
-
-## Layer 1
-
-Layer 1 implements:
-
-```text
-21 → 14
-```
-
-It contains 14 neurons.
-
-The layer was tested independently.
-
-Verification result:
-
-```text
-LAYER 1 TEST PASSED
-14/14 NEURONS PASSED
-```
-
-Status:
-
-```text
-PASSED
-```
-
----
-
-## Layer 2
-
-Layer 2 implements:
-
-```text
-14 → 7
-```
-
-It contains seven neurons.
-
-Verification result:
-
-```text
-LAYER 2 TEST PASSED
-7/7 NEURONS PASSED
-```
-
-Status:
-
-```text
-PASSED
-```
-
----
-
-## Layer 3
-
-Layer 3 implements:
-
-```text
-7 → 1
-```
-
-It contains one output neuron.
-
-Verification result:
-
-```text
-LAYER 3 TEST PASSED
-```
-
-Status:
-
-```text
-PASSED
-```
-
----
-
-## Complete TinyNPU RTL Integration
-
-The individual layers have been integrated into the complete neural-network architecture:
-
-```text
-21 → 14 → 7 → 1
-```
-
-The hierarchy is:
-
-```text
-Layer 1
-   ↓
-Layer 2
-   ↓
-Layer 3
-   ↓
-Final Output
-```
-
-The complete RTL integration simulation successfully passed:
-
-```text
-====================================
-TinyNPU Complete Network Test
-====================================
-
-Architecture:
-21 -> 14 -> 7 -> 1
-
-FINAL OUTPUT CHECK PASSED
-
-====================================
-TINY NPU INTEGRATION TEST PASSED
-21 -> 14 -> 7 -> 1
-====================================
-```
-
-Status:
-
-```text
-PASSED
-```
-
-The current integration test uses deterministic test values to verify the hardware hierarchy and datapath.
-
-It is not yet the final verification of the trained neural-network parameters.
-
----
-
-## Hardware Memory Export
-
-The quantized Python pipeline exports the hardware parameters into `.mem` files.
-
-Current memory structure:
-
-```text
 mem/
-│
-├── inputs.mem
-│
-├── weights1.mem
-├── bias1.mem
-│
-├── weights2.mem
-├── bias2.mem
-│
-├── weights3.mem
-├── bias3.mem
-│
-├── targets.mem
-├── expected_classes.mem
-│
-└── scales.txt
+├── inputs.mem           # INT8 input features
+├── weights1.mem         # INT8 weights (Layer 1)
+├── bias1.mem            # INT32 biases (Layer 1)
+├── weights2.mem         # INT8 weights (Layer 2)
+├── bias2.mem            # INT32 biases (Layer 2)
+├── weights3.mem         # INT8 weights (Layer 3)
+├── bias3.mem            # INT32 biases (Layer 3)
+└── scales.txt           # Quantization scale factors
 ```
 
-### Memory Contents
+## Dataset
 
-#### Inputs
+- **File:** `tinynpu_21_feature_dataset.csv`
+- **Input Features:** 21
+- **Target:** Binary classification (0 or 1)
+- **Task:** Train a compact neural network on tabular data
 
-```text
-inputs.mem
+## Example Workflow
+
+### 1. Train the Model
+
+```bash
+python main.py
 ```
 
-Contains:
+Output:
+```
+Dataset loaded
+Input shape: (n_samples, 21)
+Target shape: (n_samples,)
 
-```text
-INT8 input values
+Neural Network Architecture:
+Input Layer  : 21
+Hidden Layer : 14
+Hidden Layer : 7
+Output Layer : 1
+
+Starting Training...
+[Training Progress...]
+FP32 weights and biases exported!
 ```
 
-Current test data:
+### 2. FP32 Inference
 
-```text
-2 samples × 21 features
+The trained model generates predictions:
+
+```
+Sample 1: Target = 0, Probability = 0.1234, Prediction = 0
+Sample 2: Target = 1, Probability = 0.8567, Prediction = 1
 ```
 
-Total:
+### 3. Quantization
 
-```text
-42 INT8 values
+The model is automatically quantized to INT8/INT32:
+
+```
+Quantizing weights...
+Quantizing biases...
+Quantizing activations...
+Complete!
 ```
 
-#### Layer 1
+### 4. Export for Hardware
 
-```text
-weights1.mem
-bias1.mem
+Parameters are saved to `.mem` files:
+
+```
+weights1.mem    → 294 INT8 values
+bias1.mem       → 14 INT32 values
+weights2.mem    → 98 INT8 values
+bias2.mem       → 7 INT32 values
+weights3.mem    → 7 INT8 values
+bias3.mem       → 1 INT32 value
 ```
 
-Contains:
+### 5. RTL Simulation
 
-```text
-294 INT8 weights
-14 INT32 biases
+SystemVerilog testbenches verify the hardware:
+
+```bash
+# Simulate individual components
+iverilog -o tb_mac tb_mac.sv mac.sv
+./tb_mac
+
+# Simulate complete network
+iverilog -o tb_tinynpu tb_tinynpu.sv tinynpu.sv layer1.sv layer2.sv layer3.sv ...
+./tb_tinynpu
 ```
 
-#### Layer 2
+## Project Goal
 
-```text
-weights2.mem
-bias2.mem
-```
+**Demonstrate how a trained ML model can be efficiently implemented in hardware:**
 
-Contains:
+✓ Software ML pipeline (training, quantization)  
+✓ Fixed-point integer arithmetic  
+✓ Hardware description (SystemVerilog RTL)  
+✓ Simulation & verification  
+✓ FPGA deployment readiness  
 
-```text
-98 INT8 weights
-7 INT32 biases
-```
+## Learning Outcomes
 
-#### Layer 3
+This project teaches:
 
-```text
-weights3.mem
-bias3.mem
-```
-
-Contains:
-
-```text
-7 INT8 weights
-1 INT32 bias
-```
-
-#### Test Data
-
-```text
-targets.mem
-expected_classes.mem
-```
-
-These files provide reference information for validating predictions.
-
-#### Scale Information
-
-```text
-scales.txt
-```
-
-Contains the quantization scale information required to interpret the fixed-point model parameters.
+- Neural network fundamentals (forward/backward propagation)
+- Quantization techniques for hardware implementation
+- SystemVerilog hardware design
+- Testing and verification of hardware modules
+- The ML→Hardware translation pipeline
 
 ---
 
-## `.mem` Export Flow
-
-The Python hardware export stage follows:
-
-```text
-Quantized NumPy Arrays
-        ↓
-Convert Integer Values
-        ↓
-Format as Hardware Memory Values
-        ↓
-Write .mem Files
-        ↓
-SystemVerilog $readmemh()
-```
-
-The `.mem` files are intended to become the interface between the Python quantization pipeline and the RTL hardware implementation.
-
----
-
-## Python Files
-
-The Python side currently contains scripts for:
-
-```text
-main.py
-quantize.py
-quantized_inference.py
-export_mem.py
-```
-
-along with the other project modules used by the training pipeline.
-
-The main responsibilities are:
-
-```text
-main.py
-    ↓
-Training + Pipeline Coordination
-
-quantize.py
-    ↓
-INT8 / INT32 Quantization
-
-quantized_inference.py
-    ↓
-Quantized Model Inference
-
-export_mem.py
-    ↓
-Hardware .mem Generation
-```
-
----
-
-## Repository Structure
-
-```text
-TinyNPU/
-│
-├── main.py
-├── model.py
-├── backprop.py
-├── load.py
-├── export_weights.py
-├── quantize.py
-├── quantized_inference.py
-├── export_mem.py
-├── create_docs.py
-│
-├── tinynpu_21_feature_dataset.csv
-│
-├── requirements.txt
-│
-├── rtl/
-│   ├── mac.sv
-│   ├── relu.sv
-│   ├── requantize.sv
-│   ├── neuron.sv
-│   │
-│   ├── layer1.sv
-│   ├── layer2.sv
-│   ├── layer3.sv
-│   ├── tinynpu.sv
-│   │
-│   ├── tb_mac.sv
-│   ├── tb_relu.sv
-│   ├── tb_requantize.sv
-│   ├── tb_neuron.sv
-│   ├── tb_layer1.sv
-│   ├── tb_layer2.sv
-│   ├── tb_layer3.sv
-│   └── tb_tinynpu.sv
-│
-├── quantized/
-│   ├── inputs_int8.npy
-│   ├── input_scale.txt
-│   ├── weights1_int8.npy
-│   ├── weights1_scale.txt
-│   ├── weights2_int8.npy
-│   ├── weights2_scale.txt
-│   ├── weights3_int8.npy
-│   ├── weights3_scale.txt
-│   ├── activation1_int8.npy
-│   ├── activation1_scale.txt
-│   ├── activation2_int8.npy
-│   ├── activation2_scale.txt
-│   ├── bias1_int32.npy
-│   ├── bias1_scale.txt
-│   ├── bias2_int32.npy
-│   ├── bias2_scale.txt
-│   ├── bias3_int32.npy
-│   ├── bias3_scale.txt
-│   ├── outputs_fp32.npy
-│   └── targets_int8.npy
-│
-├── mem/
-│   ├── inputs.mem
-│   ├── weights1.mem
-│   ├── bias1.mem
-│   ├── weights2.mem
-│   ├── bias2.mem
-│   ├── weights3.mem
-│   ├── bias3.mem
-│   ├── targets.mem
-│   ├── expected_classes.mem
-│   └── scales.txt
-│
-└── README.md
-```
-
-Generated model artifacts such as `.npy` files and hardware `.mem` files may be excluded from Git depending on repository size and project requirements.
+**Repository:** [pranavk-10/TinyNPU](https://github.com/pranavk-10/TinyNPU)ct requirements.
 
 ---
 
