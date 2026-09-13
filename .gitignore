@@ -170,8 +170,7 @@ vivado_pid*.txt
 *.npy
 !.gitkeep
 
-# Generated memory files for RTL (regenerated from quantization)
-data/mem/*.mem
+# Memory files for RTL
 data/inputs/*.mem
 
 # Simulation artifacts

@@ -20,16 +20,24 @@ TinyNPU/
 │
 ├── tools/                       # Utility and orchestration scripts
 │   ├── main.py                  # Main pipeline runner (entry point)
-│   ├── export_mem.py            # Export quantized params to .mem format
+│   ├── export_mem.py            # Export quantized params to .mem format & params header
+│   ├── verify_rtl.py            # Complete multi-architecture verification suite (Phases 7, 8, 9)
 │   └── create_architecture_image.py # Generate architecture diagrams
 │
-├── hardware/                    # SystemVerilog RTL implementation
+├── hardware/                    # SystemVerilog RTL & FPGA implementation
+│   ├── Makefile                 # Hardware build & multi-target simulation
+│   │
+│   ├── fpga/                    # Physical FPGA synthesis & deployment
+│   │   ├── tinynpu.xdc          # Timing and pin constraints (Xilinx 7-series)
+│   │   ├── synth_vivado.tcl     # Automated Vivado non-project batch synthesis
+│   │   └── synth_yosys.ys       # Open-source Yosys gate-level synthesis script
 │   │
 │   ├── rtl/                     # RTL source code
 │   │   ├── components/          # Atomic hardware modules
 │   │   │   ├── mac.sv           # Multiply-Accumulate unit (INT8×INT8→INT32)
 │   │   │   ├── relu.sv          # ReLU activation (max(0, x))
-│   │   │   └── requantize.sv    # Requantization (INT32→INT8)
+│   │   │   ├── requantize.sv    # Requantization (INT32→INT8)
+│   │   │   └── rom_sync.sv      # Parameter ROM initialized with $readmemh
 │   │   │
 │   │   ├── layers/              # Layer implementations
 │   │   │   ├── neuron.sv        # Single neuron (MAC → Requantize → ReLU)
@@ -37,28 +45,23 @@ TinyNPU/
 │   │   │   ├── layer2.sv        # 7-neuron layer (14 → 7)
 │   │   │   └── layer3.sv        # 1-neuron layer (7 → 1)
 │   │   │
-│   │   ├── top/                 # Top-level module
-│   │   │   └── tinynpu.sv       # Complete TinyNPU network (21→14→7→1)
+│   │   ├── top/                 # Top-level accelerator architectures
+│   │   │   ├── tinynpu.sv       # Combinational top-level (Phase 5/7)
+│   │   │   ├── tinynpu_fpga.sv  # Sequential Clocked NPU with FSM (Phase 8)
+│   │   │   ├── tinynpu_pipelined.sv # Pipelined Streaming Accelerator (Phase 9, II=1)
+│   │   │   └── tinynpu_resource_shared.sv # Time-Multiplexed 1-MAC Engine (Phase 9)
 │   │   │
 │   │   └── testbenches/         # Simulation testbenches
-│   │       ├── tb_mac.sv        # Test MAC unit
-│   │       ├── tb_relu.sv       # Test ReLU activation
-│   │       ├── tb_requantize.sv # Test requantization
-│   │       ├── tb_neuron.sv     # Test single neuron
-│   │       ├── tb_layer1.sv     # Test layer 1
-│   │       ├── tb_layer2.sv     # Test layer 2
-│   │       ├── tb_layer3.sv     # Test layer 3
-│   │       └── tb_tinynpu.sv    # Test complete network
+│   │       ├── tb_mac.sv, tb_relu.sv, tb_requantize.sv, tb_neuron.sv
+│   │       ├── tb_layer1.sv, tb_layer2.sv, tb_layer3.sv, tb_tinynpu.sv
+│   │       ├── tb_tinynpu_real.sv # Real model golden RTL verification ($readmemh)
+│   │       ├── tb_tinynpu_fpga.sv # FPGA Clocked Sequential NPU Testbench (Phase 8)
+│   │       └── tb_tinynpu_resource_shared.sv # 1-MAC Resource-Shared Testbench (Phase 9)
 │   │
 │   └── sim/                     # Simulation outputs (generated, in .gitignore)
-│       ├── tinynpu_sim          # Main network simulation
-│       ├── layer1_sim           # Layer 1 simulation
-│       ├── layer2_sim           # Layer 2 simulation
-│       ├── layer3_sim           # Layer 3 simulation
-│       ├── neuron_sim           # Single neuron simulation
-│       ├── mac_sim              # MAC unit simulation
-│       ├── relu_sim             # ReLU activation simulation
-│       └── requantize_sim       # Requantization simulation
+│       ├── tinynpu_real_sim.vvp # Phase 7 simulation executable
+│       ├── tinynpu_fpga_sim.vvp # Phase 8 simulation executable
+│       └── tinynpu_shared_sim.vvp # Phase 9 simulation executable
 │
 ├── data/                        # Datasets and model parameters
 │   │

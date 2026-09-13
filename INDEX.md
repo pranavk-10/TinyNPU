@@ -12,7 +12,10 @@ Welcome to TinyNPU! This file helps you navigate all the documentation.
   - Environment setup
 
 ### Main Documentation
-- **[README.md](README.md)** - Comprehensive project documentation
+- **[README.md](README.md)** - Project documentation & completed roadmap (Phases 1-9)
+- **[docs/TinyNPU_Complete_Architecture_and_Engineering_Guide.pdf](docs/TinyNPU_Complete_Architecture_and_Engineering_Guide.pdf)** - 📄 **Downloadable PDF Guide** (Complete Engineering, Math, RTL & FPGA Guide)
+- **[docs/TinyNPU_Technical_Reference.md](docs/TinyNPU_Technical_Reference.md)** - ⭐ **Comprehensive Technical & Mathematical Reference Manual** (In-depth ML equations, backpropagation calculus, dyadic quantization, SystemVerilog RTL datapath, memory formats, and verification strategy)
+- **[docs/FPGA_Synthesis_and_Optimization_Report.md](docs/FPGA_Synthesis_and_Optimization_Report.md)** - ⭐ **FPGA Synthesis, Implementation & Optimization Report** (Phases 8 & 9: Sequential FSM, Pipelined streaming, Resource-shared 1-MAC engine, Vivado/Yosys flows, LUT/DSP/power benchmarks)
   - Complete project overview
   - Network architecture details
   - Training and quantization explained

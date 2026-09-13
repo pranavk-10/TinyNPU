@@ -49,17 +49,25 @@ pip install -r requirements.txt
 python tools/main.py
 ```
 
-**Output:** Trains model, quantizes, exports .mem files to `data/mem/`
+**Output:** Trains model, quantizes, exports .mem files and requantization header to `data/mem/`
 
-### 3️⃣ Simulate Hardware (Optional)
+### 3️⃣ Run Real-Model RTL Verification (Phase 7)
 ```bash
-# Go to hardware directory
-cd hardware/rtl
+python tools/verify_rtl.py
+```
 
-# Compile and run all tests
-iverilog -g2012 -o ../sim/tinynpu_sim \
-  components/*.sv layers/*.sv top/tinynpu.sv testbenches/tb_tinynpu.sv
-../sim/tinynpu_sim
+**Output:** Verifies 100% bit-accurate parity between Python reference and RTL hardware datapath!
+
+### 4️⃣ Simulate Hardware with Icarus Verilog (Optional)
+```bash
+# Using Makefile
+cd hardware
+make real_sim
+
+# Or manually:
+iverilog -g2012 -I.. -o sim/tinynpu_real_sim \
+  rtl/components/*.sv rtl/layers/*.sv rtl/top/tinynpu.sv rtl/testbenches/tb_tinynpu_real.sv
+vvp sim/tinynpu_real_sim
 ```
 
 ## Key Files Explained

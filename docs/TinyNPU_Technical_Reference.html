@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TinyNPU: Technical & Mathematical Reference Manual</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #24292f;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    background-color: #ffffff;
+}
+h1, h2, h3, h4 {
+    color: #0969da;
+    border-bottom: 1px solid #d0d7de;
+    padding-bottom: 6px;
+    margin-top: 28px;
+}
+h1 { font-size: 2.2rem; border-bottom: 2px solid #0969da; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.25rem; border-bottom: none; }
+pre, code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    background-color: #f6f8fa;
+    border-radius: 6px;
+}
+code { padding: 0.2em 0.4em; font-size: 85%; }
+pre {
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    border: 1px solid #d0d7de;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #d0d7de;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background-color: #f6f8fa; font-weight: 600; }
+tr:nth-child(2n) { background-color: #f6f8fa; }
+blockquote {
+    border-left: 4px solid #0969da;
+    padding: 0 15px;
+    color: #57606a;
+    margin: 0;
+}
+.diagram {
+    background-color: #f6f8fa;
+    border: 1px solid #d0d7de;
+    padding: 15px;
+    border-radius: 6px;
+    font-family: monospace;
+    white-space: pre;
+    overflow-x: auto;
+}
+@media print {
+    body { max-width: 100%; margin: 0; }
+    h1, h2, h3 { page-break-after: avoid; }
+    pre, table { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<h1>TinyNPU: Deep Learning Hardware Accelerator</h1>
+<p><strong>Complete Engineering &amp; Mathematical Reference Manual</strong><br>
+<em>Author: Pranav Kamble &mdash; Phase 7 Golden Verification Edition</em></p>
+
+<h2>1. Executive Overview &amp; Project Mission</h2>
+<p><strong>TinyNPU</strong> is an end-to-end neural network inference accelerator project designed to bridge high-level Machine Learning (ML) software frameworks and custom Digital Logic design in <strong>SystemVerilog RTL</strong> targeting <strong>FPGAs and ASICs</strong>.</p>
+<p>Modern deep learning is developed in Python using floating-point representations (FP32). However, hardware accelerators avoid floating-point operations to minimize silicon area, memory bandwidth, and power consumption. TinyNPU demonstrates the full pipeline:</p>
+<div class="diagram">CSV Dataset &rarr; FP32 Training &rarr; INT8/INT32 Quantization &rarr; .mem Export &rarr; SystemVerilog RTL &rarr; Golden RTL Verification &rarr; FPGA</div>
+
+<h2>2. Network Topology &amp; ML Mathematics</h2>
+<h3>2.1 Architecture Specification</h3>
+<p>Multilayer Perceptron (MLP) binary classifier configured as <strong>21 &rarr; 14 &rarr; 7 &rarr; 1</strong>:</p>
+<ul>
+  <li><strong>Input Layer:</strong> 21 Features ($\mathbf{x} \in \mathbb{R}^{21}$)</li>
+  <li><strong>Hidden Layer 1:</strong> 14 Neurons + ReLU ($\mathbf{W}^{(1)} \in \mathbb{R}^{14 \times 21}$, $\mathbf{b}^{(1)} \in \mathbb{R}^{14}$)</li>
+  <li><strong>Hidden Layer 2:</strong> 7 Neurons + ReLU ($\mathbf{W}^{(2)} \in \mathbb{R}^{7 \times 14}$, $\mathbf{b}^{(2)} \in \mathbb{R}^{7}$)</li>
+  <li><strong>Output Layer:</strong> 1 Neuron + Sigmoid ($\mathbf{W}^{(3)} \in \mathbb{R}^{1 \times 7}$, $b^{(3)} \in \mathbb{R}$)</li>
+  <li><strong>Total Parameters:</strong> 399 Weights + 22 Biases = <strong>421 Parameters</strong></li>
+</ul>
+
+<h3>2.2 Forward Propagation Equations</h3>
+$$\mathbf{z}^{(1)} = \mathbf{W}^{(1)}\mathbf{x} + \mathbf{b}^{(1)}, \quad \mathbf{h}^{(1)} = \text{ReLU}(\mathbf{z}^{(1)}) = \max(0, \mathbf{z}^{(1)})$$
+$$\mathbf{z}^{(2)} = \mathbf{W}^{(2)}\mathbf{h}^{(1)} + \mathbf{b}^{(2)}, \quad \mathbf{h}^{(2)} = \text{ReLU}(\mathbf{z}^{(2)}) = \max(0, \mathbf{z}^{(2)})$$
+$$z^{(3)} = \mathbf{W}^{(3)}\mathbf{h}^{(2)} + b^{(3)}, \quad \hat{y} = \sigma(z^{(3)}) = \frac{1}{1 + e^{-z^{(3)}}}$$
+
+<h3>2.3 Binary Cross-Entropy Loss &amp; Backpropagation Calculus</h3>
+$$\mathcal{L}(y, \hat{y}) = -\left[ y \ln(\hat{y} + \epsilon) + (1 - y) \ln(1 - \hat{y} + \epsilon) \right]$$
+
+<h4>Gradient Calculus:</h4>
+<ol>
+  <li><strong>Output Layer:</strong> $\delta^{(3)} = \frac{\partial \mathcal{L}}{\partial z^{(3)}} = \hat{y} - y$, &emsp; $\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(3)}} = \delta^{(3)}(\mathbf{h}^{(2)})^T$, &emsp; $\frac{\partial \mathcal{L}}{\partial b^{(3)}} = \delta^{(3)}$</li>
+  <li><strong>Hidden Layer 2:</strong> $\boldsymbol{\delta}^{(2)} = [(\mathbf{W}^{(3)})^T \delta^{(3)}] \odot \mathbb{I}(\mathbf{z}^{(2)} > 0)$, &emsp; $\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(2)}} = \boldsymbol{\delta}^{(2)}(\mathbf{h}^{(1)})^T$, &emsp; $\frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(2)}} = \boldsymbol{\delta}^{(2)}$</li>
+  <li><strong>Hidden Layer 1:</strong> $\boldsymbol{\delta}^{(1)} = [(\mathbf{W}^{(2)})^T \boldsymbol{\delta}^{(2)}] \odot \mathbb{I}(\mathbf{z}^{(1)} > 0)$, &emsp; $\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(1)}} = \boldsymbol{\delta}^{(1)}\mathbf{x}^T$, &emsp; $\frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(1)}} = \boldsymbol{\delta}^{(1)}$</li>
+  <li><strong>Gradient Descent Update:</strong> $\mathbf{W}^{(l)} \leftarrow \mathbf{W}^{(l)} - \eta \frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}}, \quad \mathbf{b}^{(l)} \leftarrow \mathbf{b}^{(l)} - \eta \frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} \quad (\eta = 0.01)$</li>
+</ol>
+
+<h2>3. Quantization &amp; Fixed-Point Hardware Arithmetic</h2>
+<h3>3.1 Symmetrical Affine Quantization</h3>
+$$S = \frac{\max(|X|)}{127}, \qquad q = \text{clip}\left(\left\lfloor \frac{x}{S} \right\rceil, -128, 127\right)$$
+
+<h3>3.2 Why Accumulators &amp; Biases Use INT32</h3>
+<p>Multiplying two signed INT8 values yields an INT16 product ($-16384 \dots +16384$). Accumulating 21 products requires $16 + \lceil \log_2(21) \rceil = 21$ bits. Therefore, <strong>32-bit signed accumulators (`logic signed [31:0]`)</strong> prevent overflow.</p>
+$$b_{\text{int32}} = \left\lfloor \frac{b_{\text{fp32}}}{S_{\text{in}} \cdot S_w} \right\rceil$$
+
+<h3>3.3 Dyadic Fixed-Point Requantization</h3>
+<p>To convert an INT32 accumulator back to an INT8 activation without floating-point division in silicon:</p>
+$$M = \frac{S_{\text{in}} \cdot S_w}{S_{\text{out}}} \approx \frac{\text{MULTIPLIER}}{2^{\text{SHIFT}}}, \quad \text{where } \text{SHIFT} = 20, \quad \text{MULTIPLIER} = \lfloor M \cdot 2^{20} \rceil$$
+<pre>scaled_value  = accumulator * MULTIPLIER;   // 32-bit * 32-bit -> 64-bit
+shifted_value = scaled_value >>> SHIFT;     // Arithmetic right shift
+output_value  = (shifted_value > 127) ? 8'sd127 : (shifted_value < -128) ? -8'sd128 : shifted_value[7:0];</pre>
+
+<h2>4. SystemVerilog RTL Architecture</h2>
+<h3>4.1 Module Hierarchy</h3>
+<ul>
+  <li><code>mac.sv</code>: Multiply-Accumulate unit ($\text{bias} + \sum x_i w_i$).</li>
+  <li><code>relu.sv</code>: Combinational zero-latency multiplexer (<code>(in < 0) ? 0 : in</code>).</li>
+  <li><code>requantize.sv</code>: Fixed-point scaling, arithmetic shift, and INT8 saturation.</li>
+  <li><code>neuron.sv</code>: Complete fused neuron datapath.</li>
+  <li><code>layer1.sv</code>: 14 parallel neurons ($21 \to 14$, 2352-bit packed weight bus).</li>
+  <li><code>layer2.sv</code>: 7 parallel neurons ($14 \to 7$, 784-bit packed weight bus).</li>
+  <li><code>layer3.sv</code>: 1 output neuron ($7 \to 1$, 56-bit packed weight bus).</li>
+  <li><code>tinynpu.sv</code>: Top-level integrated neural network engine.</li>
+</ul>
+
+<h2>5. Hardware Memory Files &amp; Verification Strategy</h2>
+<p>Weights, biases, test vectors, and parameters are exported to <code>data/mem/</code> in hexadecimal format for standard Verilog <code>$readmemh()</code> loading:</p>
+<ul>
+  <li><code>inputs.mem</code>: INT8 input samples (2 hex digits per entry).</li>
+  <li><code>weights{1,2,3}.mem</code>: INT8 weights.</li>
+  <li><code>bias{1,2,3}.mem</code>: INT32 biases (8 hex digits per entry).</li>
+  <li><code>tinynpu_params.vh</code>: Auto-generated fixed-point multipliers and shifts.</li>
+  <li><code>tb_tinynpu_real.sv</code>: Real-model testbench executing real parameters inside RTL.</li>
+  <li><code>tools/verify_rtl.py</code>: Automated golden verification tool comparing Python vs. RTL outputs.</li>
+</ul>
+
+<h2>6. Execution Commands</h2>
+<pre># 1. Run full ML training, quantization & memory export
+python tools/main.py
+
+# 2. Run golden Python vs. RTL bit-accurate verification
+python tools/verify_rtl.py
+
+# 3. Direct Icarus Verilog simulation
+cd hardware && make real_sim</pre>
+
+</body>
+</html>

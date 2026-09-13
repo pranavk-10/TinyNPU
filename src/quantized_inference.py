@@ -41,7 +41,10 @@ from pathlib import Path
 # ============================================================
 
 
-QUANTIZED_DIR = Path("quantized")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_QUANTIZED = PROJECT_ROOT / "data" / "quantized"
+
+QUANTIZED_DIR = DATA_QUANTIZED if DATA_QUANTIZED.exists() else Path("quantized")
 
 INT8_MAX = 127
 INT8_MIN = -128

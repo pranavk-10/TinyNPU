@@ -1,0 +1,27 @@
+# TinyNPU - Open-Source Yosys Synthesis Script
+# Target: Generic / iCE40 / ECP5 / Xilinx-7
+
+# Read SystemVerilog RTL files
+read_verilog -sv hardware/rtl/components/mac.sv
+read_verilog -sv hardware/rtl/components/relu.sv
+read_verilog -sv hardware/rtl/components/requantize.sv
+read_verilog -sv hardware/rtl/layers/neuron.sv
+read_verilog -sv hardware/rtl/layers/layer1.sv
+read_verilog -sv hardware/rtl/layers/layer2.sv
+read_verilog -sv hardware/rtl/layers/layer3.sv
+read_verilog -sv hardware/rtl/top/tinynpu_fpga.sv
+
+# Elaborate design hierarchy
+hierarchy -check -top tinynpu_fpga
+
+# High-level synthesis & optimization
+proc; opt; memory; opt; fsm; opt
+
+# Check for combinational loops or unmapped latches
+check
+
+# Technology mapping to generic gates
+synth -top tinynpu_fpga
+
+# Display area & resource utilization report
+stat

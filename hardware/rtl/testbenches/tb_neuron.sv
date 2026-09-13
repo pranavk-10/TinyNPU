@@ -67,14 +67,14 @@ module tb_neuron;
     // Test inputs.
     // --------------------------------------------------------
 
-    logic signed [7:0] inputs [0:N-1];
+    logic signed [(N*8)-1:0] inputs_bus;
 
 
     // --------------------------------------------------------
     // Test weights.
     // --------------------------------------------------------
 
-    logic signed [7:0] weights [0:N-1];
+    logic signed [(N*8)-1:0] weights_bus;
 
 
     // --------------------------------------------------------
@@ -109,10 +109,10 @@ module tb_neuron;
     ) dut (
 
         // Connect test inputs.
-        .inputs(inputs),
+        .inputs_bus(inputs_bus),
 
         // Connect test weights.
-        .weights(weights),
+        .weights_bus(weights_bus),
 
         // Connect bias.
         .bias(bias),
@@ -134,42 +134,42 @@ module tb_neuron;
         // Test input 0.
         // ----------------------------------------------------
 
-        inputs[0] = 8'sd10;
+        inputs_bus[0*8 +: 8] = 8'sd10;
 
 
         // ----------------------------------------------------
         // Test input 1.
         // ----------------------------------------------------
 
-        inputs[1] = 8'sd3;
+        inputs_bus[1*8 +: 8] = 8'sd3;
 
 
         // ----------------------------------------------------
         // Test input 2.
         // ----------------------------------------------------
 
-        inputs[2] = -8'sd4;
+        inputs_bus[2*8 +: 8] = -8'sd4;
 
 
         // ----------------------------------------------------
         // Test weight 0.
         // ----------------------------------------------------
 
-        weights[0] = 8'sd5;
+        weights_bus[0*8 +: 8] = 8'sd5;
 
 
         // ----------------------------------------------------
         // Test weight 1.
         // ----------------------------------------------------
 
-        weights[1] = 8'sd2;
+        weights_bus[1*8 +: 8] = 8'sd2;
 
 
         // ----------------------------------------------------
         // Test weight 2.
         // ----------------------------------------------------
 
-        weights[2] = 8'sd7;
+        weights_bus[2*8 +: 8] = 8'sd7;
 
 
         // ----------------------------------------------------
@@ -198,14 +198,14 @@ module tb_neuron;
         // Display the MAC result.
         $display(
             "MAC result       = %0d",
-            dut.mac_result
+            dut.accumulator
         );
 
 
         // Display the requantized value.
         $display(
             "Requantized      = %0d",
-            dut.requantized_value
+            dut.quantized_value
         );
 
 
@@ -220,7 +220,7 @@ module tb_neuron;
         // The MAC result should be 38.
         // ----------------------------------------------------
 
-        if (dut.mac_result == 32'sd38) begin
+        if (dut.accumulator == 32'sd38) begin
 
             $display("MAC CHECK PASSED");
 
@@ -237,7 +237,7 @@ module tb_neuron;
         // should be zero.
         // ----------------------------------------------------
 
-        if (dut.requantized_value == 8'sd0) begin
+        if (dut.quantized_value == 8'sd0) begin
 
             $display("REQUANTIZATION CHECK PASSED");
 
@@ -270,8 +270,8 @@ module tb_neuron;
         // ----------------------------------------------------
 
         if (
-            dut.mac_result == 32'sd38 &&
-            dut.requantized_value == 8'sd0 &&
+            dut.accumulator == 32'sd38 &&
+            dut.quantized_value == 8'sd0 &&
             output_value == 8'sd0
         ) begin
 

@@ -1,40 +1,18 @@
 import numpy as np
 from pathlib import Path
 
-from load import load_dataset
-from model import NeuralNetwork
-
-
-# ============================================================
-# TinyNPU - Full Quantization
-# ============================================================
-#
-# Network:
-#
-#                 21 → 14 → 7 → 1
-#
-#
-# Quantization:
-#
-# Input       → INT8
-# Weights     → INT8
-# Biases      → INT32
-# Hidden 1    → INT8
-# Hidden 2    → INT8
-# Output      → FP32 probability
-#
-#
-# The output probability remains FP32 because the sigmoid
-# function is nonlinear and we want an easy golden reference
-# for RTL verification.
-# ============================================================
-
-
-OUTPUT_DIR = Path("quantized")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+INPUTS_DIR = DATA_DIR / "inputs"
+OUTPUT_DIR = DATA_DIR / "quantized"
 
 OUTPUT_DIR.mkdir(
+    parents=True,
     exist_ok=True
 )
+
+from load import load_dataset
+from model import NeuralNetwork
 
 
 INT8_MAX = 127
@@ -188,9 +166,11 @@ def save_scale(
 # Load Dataset
 # ============================================================
 
-X, y = load_dataset(
-    "tinynpu_21_feature_dataset.csv"
-)
+dataset_file = INPUTS_DIR / "tinynpu_21_feature_dataset.csv"
+if not dataset_file.exists():
+    dataset_file = Path("tinynpu_21_feature_dataset.csv")
+
+X, y = load_dataset(str(dataset_file))
 
 
 # ============================================================
@@ -198,27 +178,27 @@ X, y = load_dataset(
 # ============================================================
 
 weights1 = np.load(
-    "weights1.npy"
+    OUTPUT_DIR / "weights1.npy" if (OUTPUT_DIR / "weights1.npy").exists() else "weights1.npy"
 )
 
 bias1 = np.load(
-    "bias1.npy"
+    OUTPUT_DIR / "bias1.npy" if (OUTPUT_DIR / "bias1.npy").exists() else "bias1.npy"
 )
 
 weights2 = np.load(
-    "weights2.npy"
+    OUTPUT_DIR / "weights2.npy" if (OUTPUT_DIR / "weights2.npy").exists() else "weights2.npy"
 )
 
 bias2 = np.load(
-    "bias2.npy"
+    OUTPUT_DIR / "bias2.npy" if (OUTPUT_DIR / "bias2.npy").exists() else "bias2.npy"
 )
 
 weights3 = np.load(
-    "weights3.npy"
+    OUTPUT_DIR / "weights3.npy" if (OUTPUT_DIR / "weights3.npy").exists() else "weights3.npy"
 )
 
 bias3 = np.load(
-    "bias3.npy"
+    OUTPUT_DIR / "bias3.npy" if (OUTPUT_DIR / "bias3.npy").exists() else "bias3.npy"
 )
 
 
